@@ -1,0 +1,35 @@
+name: Python application with PyInstaller
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller -F -i favicon.ico main.py
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: main-${{ matrix.os }}-${{ matrix.python-version }}
+        path: dist/main
